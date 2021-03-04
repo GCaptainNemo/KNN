@@ -89,6 +89,7 @@ class MinHeap:
         while self.data:
             result.append(self.data[0])
             self.delete()
+        self.data = result
         return result
 
 
@@ -122,7 +123,7 @@ class MaxHeap:
                     target_index = new_index
                 else:
                     break
-        print("maxi heap = ", self.data)
+        # print("maxi heap = ", self.data)
 
     def insert(self, data_piece):
         """ 在最大堆中插入数据，数据上浮，复杂度O(logK) """
@@ -141,7 +142,7 @@ class MaxHeap:
     def delete(self):
         """ 在最大堆中删除堆顶元素， 复杂度O(logK)，数据下沉 """
         self.data[0] = self.data[-1]
-        self.data.pop(-1)
+        self.data.pop()
         target_index = 0
         max_index = len(self.data) - 1
         while True:
@@ -164,13 +165,15 @@ class MaxHeap:
         while self.data:
             result.append(self.data[0])
             self.delete()
+        self.data = result
         return result
 
 
 class TopK:
-    def __init__(self, data, K):
+    def __init__(self, data, K, function=lambda x:x):
         self.data = data
         self.K = K
+        self.function = function
 
     def solve(self, maximize=True):
         """
@@ -179,11 +182,10 @@ class TopK:
         """
         if maximize:
             init_heap = self.data[:self.K].copy()
-            function = lambda x:x
-            heap = MinHeap(init_heap, function=function)
+            heap = MinHeap(init_heap, function=self.function)
             heap.make_minheap()
             for i in range(self.K, len(self.data)):
-                if function(self.data[i]) > function(heap.data[0]):
+                if self.function(self.data[i]) > self.function(heap.data[0]):
                     # 比最小堆最小的元素还大
                     heap.delete()
                     heap.insert(self.data[i])
@@ -191,24 +193,22 @@ class TopK:
             print(heap.heap_sort())
         else:
             init_heap = self.data[:self.K].copy()
-            heap = MaxHeap(init_heap)
+            heap = MaxHeap(init_heap, function=self.function)
             heap.make_maxheap()
             for i in range(self.K, len(self.data)):
-                if self.data[i] < heap.data[0]:
+                if self.function(self.data[i]) < self.function(heap.data[0]):
                     # 比最大堆最大的元素还小
                     heap.delete()
                     heap.insert(self.data[i])
-
             print(heap.heap_sort())
-
         return heap.data
 
 
 if __name__ == "__main__":
     data_ = list(range(1000))
     random.shuffle(data_)
-    a = TopK(data_, 10)
-    a.solve(True)
+    a = TopK(data_, 10, function=lambda x:-x)
+    a.solve(False)
     # b = minheap(data)
     # b.make_minheap()
     # print(b.heap_sort())
