@@ -70,7 +70,7 @@ class KDTree:
             nd, index_lst = queue.pop(0)   # 队列，先入先出
             n = len(index_lst)
             if n == 1:
-                ### 到达叶子节点
+                # 到达叶子节点
                 nd.split = (dataX[index_lst[0]], dataY[index_lst[0]])
                 continue
             # dimension_choice = i % dimension_num
@@ -79,12 +79,12 @@ class KDTree:
             idxs_left, idxs_right = self.split_index_lst(dataX, index_lst, dimension_choice, median_idx)
             nd.split = (dataX[median_idx], dataY[median_idx])
             # 送入队列
-            if idxs_left != []:
+            if idxs_left:
                 nd.left = Node()
                 nd.left.father = nd
                 nd.left.dimension_choice = (dimension_choice + 1) % dimension_num
                 queue.append((nd.left, idxs_left))
-            if idxs_right != []:
+            if idxs_right:
                 nd.right = Node()
                 nd.right.father = nd
                 nd.right.dimension_choice = (dimension_choice + 1) % dimension_num
@@ -231,8 +231,6 @@ class KDTree:
                     max_heap.insert(left_child)
                     stack.append(left_child)
                 else:
-                    # dist_hyper = self.get_hyper_plane_dist(
-                    #     search_xi, node_cur.parent)
                     dist_hyper = self.get_hyper_plane_vector(
                         search_xi, node_cur, left=True)
                     if dist_hyper < function(max_heap.data[0]):
@@ -249,10 +247,8 @@ class KDTree:
                     max_heap.insert(right_child)
                     stack.append(right_child)
                 else:
-                    # dist_hyper = self.get_hyper_plane_dist(
-                    #     search_xi, node_cur.parent)
                     dist_hyper = self.get_hyper_plane_vector(
-                        search_xi, node_cur, left=True)
+                        search_xi, node_cur, left=False)
                     if dist_hyper < function(max_heap.data[0]):
                         stack.append(right_child)
 
@@ -260,7 +256,7 @@ class KDTree:
 
 
 if __name__ == "__main__":
-    N = 10
+    N = 500
     X = [np.array([np.random.random() * 100 for _ in range(2)]) for _ in range(N)]
     Y = [1 if np.random.random() > 0.5 else 0 for _ in range(N)]
     kd_tree = KDTree()
