@@ -3,34 +3,56 @@
 # author： 11360
 # datetime： 2021/3/4 0:17 
 
+from src.kd_tree import KDTree
 
 from sklearn import datasets
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
-np.random.seed(0)
-#设置随机种子，不设置的话默认是按系统时间作为参数，因此每次调用随机模块时产生的随机数都不一样设置后每次产生的一样
-iris = datasets.load_iris()
-#导入鸢尾花的数据集，iris是一个类似于结构体的东西，内部有样本数据，如果是监督学习还有标签数据
-iris_x = iris.data
- #样本数据150*4二维数据，代表150个样本，每个样本4个属性分别为花瓣和花萼的长、宽
-iris_y = iris.target
-#长150的以为数组，样本数据的标签
-indices = np.random.permutation(len(iris_x))
-#permutation接收一个数作为参数(150),产生一个0-149一维数组，只不过是随机打乱的，当然她也可以接收一个一维数组作为参数，结果是直接对这个数组打乱
-iris_x_train = iris_x[indices[:-10]]
- #随机选取140个样本作为训练数据集
-iris_y_train = iris_y[indices[:-10]]
-#并且选取这140个样本的标签作为训练数据集的标签
-iris_x_test  = iris_x[indices[-10:]]
- #剩下的10个样本作为测试数据集
-iris_y_test  = iris_y[indices[-10:]]
-#并且把剩下10个样本对应标签作为测试数据及的标签
+from collections import Counter
 
-knn = KNeighborsClassifier()
-#定义一个knn分类器对象
-knn.fit(iris_x_train, iris_y_train)
-#调用该对象的训练方法，主要接收两个参数：训练数据集及其样本标签
+class MyKNNclassifier:
+    def __init__(self, n_neighbour):
+        self.kd_tree = KDTree()
+        self.K_n = n_neighbour
 
-iris_y_predict = knn.predict(iris_x_test)
+    def fit(self, X_train, Y_train):
+        """
+        用训练数据构建KD-tree
+        :param X_train: 训练数据X
+        :param Y_train: 训练数据类别(label)
+        :return: None
+        """
+        self.kd_tree.build_tree(X_train, Y_train)
+
+    def predict(self, X_test):
+        res = []
+        for x in X_test:
+            node_lst = self.kd_tree.search_knn(x, self.K_n)
+            vote_counter = Counter([node_lst[i].split[1] for i in range(self.K_n)])
+            class_type = vote_counter.most_common(1)[0][0]
+            res.append(class_type)
+        return res
 
 
+if __name__ == "__main__":
+    # 设置随机种子，不设置的话默认是按系统时间作为参数，因此每次调用随机模块时产生的随机数都不一样。
+    # 设置后每次产生的一样
+    np.random.seed(0)
+    iris = datasets.load_iris()
+    iris_x = iris.data
+    iris_y = iris.target
+    indices = np.random.permutation(len(iris_x))
+    iris_x_train = iris_x[indices[:-10]]
+    iris_y_train = iris_y[indices[:-10]]
+    iris_x_test = iris_x[indices[-10:]]
+    iris_y_test = iris_y[indices[-10:]]
+    K = 3
+    knn = KNeighborsClassifier(n_neighbors=K)
+    knn.fit(iris_x_train, iris_y_train)
+    iris_y_predict = knn.predict(iris_x_test)
+    print(iris_y_predict)
+
+    obj = MyKNNclassifier(K)
+    obj.fit(iris_x_train, iris_y_train)
+    res = obj.predict(iris_x_test)
+    print(res)

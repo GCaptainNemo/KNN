@@ -149,15 +149,6 @@ class KDTree:
         max_heap.heap_sort()
         return max_heap.data
 
-        # min_dist = float("inf")
-        # for array in X:
-        #     dist = np.linalg.norm(search_xi - array)
-        #     if dist < min_dist:
-        #         min_dist = dist
-        #         a = array
-        # print("min_dist = ", min_dist)
-        # print("a = ", a)
-
     def get_hyper_plane_dist(self, Xi, node):
         dc = node.dimension_choice
         return abs(Xi[dc] - node.split[0][dc])
