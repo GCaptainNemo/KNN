@@ -40,12 +40,32 @@ class KDTree:
     def __init__(self):
         self.root = Node()
 
-    def build_tree(self, dataX, dataY):
-        dimension_num = dataX[0].shape[0]
+    def __str__(self):
+        ret = []
         i = 0
+        que = [(self.root, -1)]
+        while que:
+            nd, idx_father = que.pop(0)
+            ret.append("%d -> %d: %s" % (idx_father, i, str(nd)))
+            if nd.left is not None:
+                que.append((nd.left, i))
+            if nd.right is not None:
+                que.append((nd.right, i))
+            i += 1
+        return "\n".join(ret)
+
+    def build_tree(self, dataX, dataY):
+        """
+        用dataX中的数据构造KD-tree，循环选择分割的维度。
+        :param dataX:
+        :param dataY:
+        :return:
+        """
+        dimension_num = max(dataX[0].shape)   # 可能(n, 1)或(1, n)
         nd = self.root
         indexes = range(len(dataX))
         queue = [(nd, indexes)]
+        nd.dimension_choice = 0
         while queue:
             nd, index_lst = queue.pop(0)   # 队列，先入先出
             n = len(index_lst)
@@ -53,21 +73,22 @@ class KDTree:
                 ### 到达叶子节点
                 nd.split = (dataX[index_lst[0]], dataY[index_lst[0]])
                 continue
-            dimension_choice = i % dimension_num
+            # dimension_choice = i % dimension_num
+            dimension_choice = nd.dimension_choice
             median_idx = self.get_median_index(dataX, index_lst, dimension_choice)
             idxs_left, idxs_right = self.split_index_lst(dataX, index_lst, dimension_choice, median_idx)
-            nd.dimension_choice = dimension_choice
             nd.split = (dataX[median_idx], dataY[median_idx])
             # 送入队列
             if idxs_left != []:
                 nd.left = Node()
                 nd.left.father = nd
+                nd.left.dimension_choice = (dimension_choice + 1) % dimension_num
                 queue.append((nd.left, idxs_left))
             if idxs_right != []:
                 nd.right = Node()
                 nd.right.father = nd
+                nd.right.dimension_choice = (dimension_choice + 1) % dimension_num
                 queue.append((nd.right, idxs_right))
-            i += 1
 
     def split_index_lst(self, X, idxs, dimension_choice, median_idx):
         idxs_split = [[], []]
@@ -136,7 +157,7 @@ class KDTree:
     def linear_search(self, X_lst, search_xi, K, function=None):
         """
         用最大堆解决TopK问题，复杂度O(Nlogk)，验证用kd-tree算法结果可靠性
-        :return: None
+        :return: 最大的K个数
         """
         function = lambda x: np.linalg.norm(x - search_xi)
         init_heap = X_lst[:K]
@@ -154,13 +175,12 @@ class KDTree:
         dc = node.dimension_choice
         return abs(Xi[dc] - node.split[0][dc])
 
-    def get_hyper_plane_arrow(self, Xi, node, left=True):
+    def get_hyper_plane_vector(self, Xi, node, left=True):
         dc = node.dimension_choice
         if left:
             res = Xi[dc] - node.split[0][dc]
         else:
             res = node.split[0][dc] - Xi[dc]
-
         return res
 
     def search_knn(self, search_xi, k):
@@ -213,7 +233,7 @@ class KDTree:
                 else:
                     # dist_hyper = self.get_hyper_plane_dist(
                     #     search_xi, node_cur.parent)
-                    dist_hyper = self.get_hyper_plane_arrow(
+                    dist_hyper = self.get_hyper_plane_vector(
                         search_xi, node_cur, left=True)
                     if dist_hyper < function(max_heap.data[0]):
                         stack.append(left_child)
@@ -231,7 +251,7 @@ class KDTree:
                 else:
                     # dist_hyper = self.get_hyper_plane_dist(
                     #     search_xi, node_cur.parent)
-                    dist_hyper = self.get_hyper_plane_arrow(
+                    dist_hyper = self.get_hyper_plane_vector(
                         search_xi, node_cur, left=True)
                     if dist_hyper < function(max_heap.data[0]):
                         stack.append(right_child)
@@ -240,15 +260,16 @@ class KDTree:
 
 
 if __name__ == "__main__":
-    N = 1000
+    N = 10
     X = [np.array([np.random.random() * 100 for _ in range(2)]) for _ in range(N)]
     Y = [1 if np.random.random() > 0.5 else 0 for _ in range(N)]
     kd_tree = KDTree()
     kd_tree.build_tree(X, Y)
+    print(str(kd_tree))
     # nearest_node = kd_tree.search_1nn(np.array([3, 4, 5]))
     # print("node.split = ", nearest_node.split[0])
     # print(np.linalg.norm(nearest_node.split[0] - np.array([3, 4, 5])))
-    K = 7
+    K = 5
     Xi = np.array([50, 50])
     max_heap = kd_tree.search_knn(Xi, K)
     data = kd_tree.linear_search(X, Xi, K)
@@ -260,10 +281,12 @@ if __name__ == "__main__":
         plt.scatter(X[i][0],
                     X[i][1],
                     c="b")
+    # for i in range(len(max_heap)):
+    #     plt.scatter(max_heap[i].split[0][0], max_heap[i].split[0][1], c="r")
+    for i in range(len(data)):
+        plt.scatter(data[i][0], data[i][1], c="r")
     plt.scatter(Xi[0], Xi[1],
                 marker="h", s=10, c="y")
-    for i in range(len(max_heap)):
-        plt.scatter(max_heap[i].split[0][0], max_heap[i].split[0][1], c="r")
     plt.show()
 
 
