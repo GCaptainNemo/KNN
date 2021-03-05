@@ -7,6 +7,8 @@
 from src.topk_problem import MaxHeap
 import numpy as np
 import matplotlib.pyplot as plt
+from time import time
+
 
 class Node:
     def __init__(self):
@@ -256,19 +258,22 @@ class KDTree:
 
 
 if __name__ == "__main__":
-    N = 500
+    N = 1000
     X = [np.array([np.random.random() * 100 for _ in range(2)]) for _ in range(N)]
     Y = [1 if np.random.random() > 0.5 else 0 for _ in range(N)]
     kd_tree = KDTree()
     kd_tree.build_tree(X, Y)
-    print(str(kd_tree))
-    # nearest_node = kd_tree.search_1nn(np.array([3, 4, 5]))
-    # print("node.split = ", nearest_node.split[0])
-    # print(np.linalg.norm(nearest_node.split[0] - np.array([3, 4, 5])))
     K = 5
     Xi = np.array([50, 50])
+    kd_t1 = time()
     max_heap = kd_tree.search_knn(Xi, K)
+    kd_t2 = time()
+    print("kd time = ", kd_t2 - kd_t1)
+
+    t1 = time()
     data = kd_tree.linear_search(X, Xi, K)
+    t2 = time()
+    print("linear_search time = ", t2 - t1)
     for i in range(len(max_heap)):
         print("error_array = ", max_heap[i].split[0] - data[i])
         print("error_dist = ", np.linalg.norm(max_heap[i].split[0] - data[i]))
@@ -277,10 +282,10 @@ if __name__ == "__main__":
         plt.scatter(X[i][0],
                     X[i][1],
                     c="b")
-    # for i in range(len(max_heap)):
-    #     plt.scatter(max_heap[i].split[0][0], max_heap[i].split[0][1], c="r")
-    for i in range(len(data)):
-        plt.scatter(data[i][0], data[i][1], c="r")
+    for i in range(len(max_heap)):
+        plt.scatter(max_heap[i].split[0][0], max_heap[i].split[0][1], c="r")
+    # for i in range(len(data)):
+    #     plt.scatter(data[i][0], data[i][1], c="r")
     plt.scatter(Xi[0], Xi[1],
                 marker="h", s=10, c="y")
     plt.show()
