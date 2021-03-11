@@ -9,7 +9,7 @@ KNN是一种基本的分类和回归方法，这里只介绍KNN分类算法。�
 而那些在训练阶段对样本进行学习处理的方法，称为急切学习(eager learning)。
 ### 1.2 理论分析
 在决策理论(decision theory)中，把从特征变量(X)到目标变量(C)的一个映射h称为决策(decision)，对于分类问题也叫分类器(classifier)，定义分类误差(classification error)为R(h)=P(h(X)≠C)，
-而一个问题的C(X):=P(C|X)称为C关于X的回归函数(regression function)。在决策理论中有一个非常重要的结论——在关于分类问题所有信息已知的情况下(回归函数P(C|X)已知)，贝叶斯分类器(Bayes
+而一个问题的P(C|X)称为C关于X的回归函数(regression function)。在决策理论中有一个非常重要的结论——在关于分类问题所有信息已知的情况下(回归函数P(C|X)已知)，贝叶斯分类器(Bayes
 classifier)的分类误差是最小的，贝叶斯分类器的定义为h<sup>\*</sup>(x)=argmax<sub>c∈Y</sub>P(c|**x**)。
 
 下面讨论1NN分类器与Bayes分类器之间分类误差的关系：1NN分类器，假设样本之间独立同分布，则对测试数据x，其最近邻样本为z，后验概率分布P(c|x)已知，1NN分类器的分类误差P(h(X)≠C)就是x与z类别标记不同的概率：
