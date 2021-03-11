@@ -8,16 +8,19 @@ KNN是一种基本的分类和回归方法，这里只介绍KNN分类算法。�
 与其它学习方法相比，KNN最大的特点是没有显式的训练过程，KNN是懒惰学习(lazy learning)的代表，此类学习技术在训练阶段仅把样本保存，训练时间开销为0，等收到测试样本后再进行处理。
 而那些在训练阶段对样本进行学习处理的方法，称为急切学习(eager learning)。
 ### 1.2 理论分析
-考虑1NN分类器，假设样本之间独立同分布，则对测试数据x，其最近邻样本为z。假设后验概率分布P(c|x)已知，1NN分类器出错的概率就是x与z类别标记不同的概率：
+在决策理论(decision theory)中，把从特征变量(X)到目标变量(C)的一个映射h称为决策(decision)，对于分类问题也叫分类器(classifier)，定义分类误差(classification error)为R(h)=P(h(X)≠C)，
+而一个问题的C(X):=P(C|X)称为C关于X的回归函数(regression function)。在决策理论中有一个非常重要的结论——在关于分类问题所有信息已知的情况下(回归函数P(C|X)已知)，贝叶斯分类器(Bayes
+classifier)的分类误差是最小的，贝叶斯分类器的定义为h<sup>\*</sup>(x)=argmax<sub>c∈Y</sub>P(c|**x**)。
 
-![1nn_error](resources/1nn_error_prob.png)
+下面讨论1NN分类器与Bayes分类器之间分类误差的关系：1NN分类器，假设样本之间独立同分布，则对测试数据x，其最近邻样本为z，后验概率分布P(c|x)已知，1NN分类器的分类误差P(h(X)≠C)就是x与z类别标记不同的概率：
 
-c<sup>\*</sup>(x)=argmax<sub>c∈Y</sub>P(c|**x**)是贝叶斯最优分类器(Bayes optimal classifier)的决策结果。假设训练数据采样足够“致密”，即对任意小正数δ，在测试数据**x**的δ邻域总能找到一个训练样本z，
-则：
+![1nn_classification_error](resources/1nn_error_prob.png)
+
+假设训练数据采样足够“致密”，即对任意小正数δ，在测试数据**x**的δ邻域总能找到一个训练样本z，则：
 
 ![error_bound](resources/error_bound.jpg)
 
-这告诉我们1NN虽然简单，但只要训练样本足够致密，1NN分类器模型误差的理论上限不超过贝叶斯最优分类器误差理论上限的两倍。
+这告诉我们1NN虽然简单，但只要训练样本足够致密，1NN分类器分类误差的理论上限不超过贝叶斯分类器分类误差理论上限的两倍。
 
 ## 二、Kd-tree
 在实现KNN算法时，主要考虑如何对训练数据进行快速k近邻搜索。kd树(k-dimension tree)是一种对k维空间中的数据点进行存储以便对其进行快速检索的数据结构。
