@@ -93,5 +93,6 @@ k近邻搜索的思路是：
 
 ## 五、参考
 1. 李航. 统计学习方法[M]. 清华大学出版社, 2012.
-2. [百度百科 kd-tree](https://baike.baidu.com/item/kd-tree/2302515)
-3. [https://zhuanlan.zhihu.com/p/45346117](https://zhuanlan.zhihu.com/p/45346117)
+2. [Scipy Kd-tree](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.KDTree.html)
+3. [百度百科 kd-tree](https://baike.baidu.com/item/kd-tree/2302515)
+4. [https://zhuanlan.zhihu.com/p/45346117](https://zhuanlan.zhihu.com/p/45346117)
